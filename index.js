@@ -21,24 +21,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const beverageCount = newFieldset.querySelector(".beverage-count");
         beverageCount.textContent = `Напиток №${drinkCount}`;
-
         newFieldset.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.name = `milk-${drinkCount}`;
         });
 
         const textareaLabel = document.createElement("label");
+        textareaLabel.className = "textarea-label";
         textareaLabel.textContent = "И еще вот что";
-        textareaLabel.style.display = "block";
-        textareaLabel.style.marginTop = "10px";
 
         const textarea = document.createElement("textarea");
-        textarea.className = `additional-notes-${drinkCount}`;
-        textarea.style.width = "100%";
-        textarea.style.height = "50px";
-        textarea.style.marginBottom = "10px";
+        textarea.className = `additional-notes additional-notes-${drinkCount}`;
 
         const previewText = document.createElement("p");
-        previewText.style.marginTop = "5px";
+        previewText.className = "preview-text";
 
         textarea.addEventListener("input", () => {
             const highlightedText = textarea.value.replace(
@@ -56,15 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
         removeButton.type = "button";
         removeButton.className = "remove-button";
         removeButton.innerHTML = "&times;";
-        Object.assign(removeButton.style, {
-            position: "absolute",
-            top: "5px",
-            right: "5px",
-            backgroundColor: "transparent",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer"
-        });
         removeButton.addEventListener("click", () => {
             const beverages = document.querySelectorAll(".beverage");
             if (beverages.length > 1) {
@@ -98,79 +84,53 @@ document.addEventListener("DOMContentLoaded", () => {
         const word = declOfNum(count, ["напиток", "напитка", "напитков"]);
 
         const overlay = document.createElement("div");
-        Object.assign(overlay.style, {
-            position: "fixed", top: "0", left: "0",
-            width: "100%", height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)", zIndex: "999"
-        });
+        overlay.className = "overlay";
 
         const modal = document.createElement("div");
         modal.className = "modal";
-        Object.assign(modal.style, {
-            position: "fixed", top: "50%", left: "50%",
-            transform: "translate(-50%,-50%)",
-            width: "600px", padding: "20px",
-            backgroundColor: "#fff", borderRadius: "8px",
-            boxShadow: "0 4px 8px rgba(0,0,0,0.2)", zIndex: "1000",
-            textAlign: "center"
-        });
 
         const closeButton = document.createElement("button");
+        closeButton.className = "modal-close";
         closeButton.innerHTML = "&times;";
-        Object.assign(closeButton.style, {
-            position: "absolute", top: "10px", right: "10px",
-            backgroundColor: "transparent", border: "none",
-            fontSize: "24px", cursor: "pointer"
-        });
         closeButton.addEventListener("click", () => {
-            modal.remove();
-            overlay.remove();
+            modal.remove(); overlay.remove();
         });
         overlay.addEventListener("click", () => {
-            modal.remove();
-            overlay.remove();
+            modal.remove(); overlay.remove();
         });
 
         const modalText = document.createElement("p");
+        modalText.className = "modal-text";
         modalText.textContent = `Вы заказали ${count} ${word}`;
-        modalText.style.fontSize = "18px";
 
         const table = document.createElement("table");
-        table.style.width = "100%";
-        table.style.borderCollapse = "collapse";
-        table.style.marginTop = "15px";
+        table.className = "order-table";
         const header = table.insertRow();
         ["Напиток", "Молоко", "Дополнительно", "Пожелания"].forEach(txt => {
             const th = document.createElement("th");
             th.textContent = txt;
-            th.style.border = "1px solid #ccc";
-            th.style.padding = "8px";
-            th.style.textAlign = "left";
             header.appendChild(th);
         });
         beverages.forEach(fs => {
             const row = table.insertRow();
             const drink = fs.querySelector("select").selectedOptions[0].textContent;
-            const milk = fs.querySelector('input[type="radio"]:checked')
-                .nextElementSibling.textContent;
+            const milk = fs.querySelector('input[type="radio"]:checked').nextElementSibling.textContent;
             const opts = Array.from(fs.querySelectorAll('input[type="checkbox"]:checked'))
                 .map(cb => cb.nextElementSibling.textContent).join(", ");
             const notes = fs.querySelector("textarea").value;
             [drink, milk, opts, notes].forEach(val => {
                 const cell = row.insertCell();
                 cell.textContent = val;
-                cell.style.border = "1px solid #ccc";
-                cell.style.padding = "8px";
             });
         });
 
         const timeLabel = document.createElement("label");
+        timeLabel.className = "time-label";
         timeLabel.textContent = "Выберите время заказа:";
-        timeLabel.style.display = "block";
-        timeLabel.style.marginTop = "15px";
+
         const timeInput = document.createElement("input");
         timeInput.type = "time";
-        timeInput.style.fontSize = "16px";
+        timeInput.className = "time-input";
 
         const confirmBtn = document.createElement("button");
         confirmBtn.type = "button";
@@ -187,8 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 timeInput.style.border = "2px solid red";
                 alert("Мы не умеем перемещаться во времени. Выберите время позже, чем текущее");
             } else {
-                modal.remove();
-                overlay.remove();
+                modal.remove(); overlay.remove();
             }
         });
 
@@ -204,16 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const firstFieldset = document.querySelector(".beverage");
     const textareaLabel = document.createElement("label");
+    textareaLabel.className = "textarea-label";
     textareaLabel.textContent = "И еще вот что";
-    textareaLabel.style.display = "block";
-    textareaLabel.style.marginTop = "10px";
     const textarea = document.createElement("textarea");
-    textarea.className = "additional-notes-1";
-    textarea.style.width = "100%";
-    textarea.style.height = "50px";
-    textarea.style.marginBottom = "10px";
+    textarea.className = "additional-notes additional-notes-1";
     const previewText = document.createElement("p");
-    previewText.style.marginTop = "5px";
+    previewText.className = "preview-text";
     textarea.addEventListener("input", () => {
         const highlightedText = textarea.value.replace(
             /(срочно|быстрее|побыстрее|скорее|поскорее|очень нужно)/gi,
@@ -228,11 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initialRemoveButton.type = "button";
     initialRemoveButton.className = "remove-button";
     initialRemoveButton.innerHTML = "&times;";
-    Object.assign(initialRemoveButton.style, {
-        position: "absolute", top: "5px", right: "5px",
-        backgroundColor: "transparent", border: "none",
-        fontSize: "20px", cursor: "pointer"
-    });
     initialRemoveButton.addEventListener("click", () => {
         const beverages = document.querySelectorAll(".beverage");
         if (beverages.length > 1) {
