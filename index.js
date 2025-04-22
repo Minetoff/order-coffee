@@ -7,9 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const drinkTemplate = document.getElementById("drink-template");
 
     function declOfNum(n, titles) {
-        return titles[(n % 10 === 1 && n % 100 !== 11) ? 0
-            : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1
-                : 2];
+        return titles[
+            (n % 10 === 1 && n % 100 !== 11) ? 0
+                : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1
+                    : 2
+            ];
     }
 
     function createDrinkForm() {
@@ -19,6 +21,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const beverageCount = newFieldset.querySelector(".beverage-count");
         beverageCount.textContent = `Напиток №${drinkCount}`;
+
+        newFieldset.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.name = `milk-${drinkCount}`;
+        });
+
+        // Добавление textarea и подписи
+        const textareaLabel = document.createElement("label");
+        textareaLabel.textContent = "И еще вот что";
+        textareaLabel.style.display = "block";
+        textareaLabel.style.marginTop = "10px";
+
+        const textarea = document.createElement("textarea");
+        textarea.className = `additional-notes-${drinkCount}`;
+        textarea.style.width = "100%";
+        textarea.style.height = "50px";
+        textarea.style.marginBottom = "10px";
+
+        const previewText = document.createElement("p");
+        previewText.style.marginTop = "5px";
+
+        textarea.addEventListener("input", () => {
+            const text = textarea.value;
+            const highlightedText = text.replace(
+                /(срочно|быстрее|побыстрее|скорее|поскорее|очень нужно)/gi,
+                match => `<b>${match}</b>`
+            );
+            previewText.innerHTML = highlightedText;
+        });
+
+        newFieldset.appendChild(textareaLabel);
+        newFieldset.appendChild(textarea);
+        newFieldset.appendChild(previewText);
 
         const removeButton = document.createElement("button");
         removeButton.type = "button";
@@ -33,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
             fontSize: "20px",
             cursor: "pointer"
         });
-
         removeButton.addEventListener("click", () => {
             const beverages = document.querySelectorAll(".beverage");
             if (beverages.length > 1) {
@@ -48,29 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateDrinkNumbers() {
         const beverages = document.querySelectorAll(".beverage");
-        beverages.forEach(fieldset => {
-            const drink = fieldset.querySelector("select").value;
-        
-            const milkInput = Array.from(fieldset.querySelectorAll("input[type='radio']"))
-                .find(radio => radio.checked);
-            let milk = "—";
-            if (milkInput && milkInput.nextElementSibling) {
-                milk = milkInput.nextElementSibling.textContent.trim();
-            }
-        
-            const options = Array.from(fieldset.querySelectorAll("input[type='checkbox']:checked"))
-                .map(checkbox => checkbox.nextElementSibling.textContent.trim()).join(", ") || "—";
-        
-            const row = document.createElement("tr");
-            [drink, milk, options].forEach(text => {
-                const td = document.createElement("td");
-                td.textContent = text;
-                td.style.padding = "10px";
-                td.style.borderBottom = "1px solid #eee";
-                row.appendChild(td);
+        beverages.forEach((fieldset, index) => {
+            fieldset.querySelector(".beverage-count")
+                .textContent = `Напиток №${index + 1}`;
+
+            fieldset.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.name = `milk-${index + 1}`;
             });
-            tbody.appendChild(row);
         });
+        drinkCount = beverages.length;
     }
 
     addDrinkButton.addEventListener("click", createDrinkForm);
@@ -100,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "500px",
+            width: "600px",
             padding: "20px",
             backgroundColor: "#fff",
             borderRadius: "8px",
@@ -126,42 +145,40 @@ document.addEventListener("DOMContentLoaded", () => {
         modalText.style.fontSize = "18px";
 
         const table = document.createElement("table");
-        table.style.marginTop = "20px";
         table.style.width = "100%";
         table.style.borderCollapse = "collapse";
-        table.style.textAlign = "left";
+        table.style.marginTop = "15px";
 
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        ["Напиток", "Молоко", "Дополнительно"].forEach(text => {
+        const header = table.insertRow();
+        ["Напиток", "Молоко", "Дополнительно", "Пожелания"].forEach(text => {
             const th = document.createElement("th");
             th.textContent = text;
-            th.style.padding = "10px";
-            th.style.borderBottom = "1px solid #ccc";
-            headerRow.appendChild(th);
+            th.style.border = "1px solid #ccc";
+            th.style.padding = "8px";
+            th.style.textAlign = "left";
+            header.appendChild(th);
         });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
 
-        const tbody = document.createElement("tbody");
         beverages.forEach(fieldset => {
-            const drink = fieldset.querySelector("select").value;
-            const milk = Array.from(fieldset.querySelectorAll("input[type='radio']"))
-                .find(radio => radio.checked).nextElementSibling.textContent.trim();
-            const options = Array.from(fieldset.querySelectorAll("input[type='checkbox']:checked"))
-                .map(checkbox => checkbox.nextElementSibling.textContent.trim()).join(", ") || "—";
+            const row = table.insertRow();
+            const select = fieldset.querySelector("select");
+            const drinkText = select.options[select.selectedIndex].textContent;
+            const milkInput = fieldset.querySelector('input[type="radio"]:checked');
+            const milkLabel = fieldset.querySelector(`input[value="${milkInput.value}"]`).nextElementSibling.textContent;
+            const options = Array.from(fieldset.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.nextElementSibling.textContent)
+                .join(", ");
 
-            const row = document.createElement("tr");
-            [drink, milk, options].forEach(text => {
-                const td = document.createElement("td");
-                td.textContent = text;
-                td.style.padding = "10px";
-                td.style.borderBottom = "1px solid #eee";
-                row.appendChild(td);
+            const textarea = fieldset.querySelector("textarea");
+            const notes = textarea.value;
+
+            [drinkText, milkLabel, options, notes].forEach(cellText => {
+                const cell = row.insertCell();
+                cell.textContent = cellText;
+                cell.style.border = "1px solid #ccc";
+                cell.style.padding = "8px";
             });
-            tbody.appendChild(row);
         });
-        table.appendChild(tbody);
 
         closeButton.addEventListener("click", () => {
             modal.remove();
@@ -180,6 +197,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const firstFieldset = document.querySelector(".beverage");
+
+    // Добавление textarea и подписи для первой формы
+    const textareaLabel = document.createElement("label");
+    textareaLabel.textContent = "И еще вот что";
+    textareaLabel.style.display = "block";
+    textareaLabel.style.marginTop = "10px";
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "additional-notes-1";
+    textarea.style.width = "100%";
+    textarea.style.height = "50px";
+    textarea.style.marginBottom = "10px";
+
+    const previewText = document.createElement("p");
+    previewText.style.marginTop = "5px";
+
+    textarea.addEventListener("input", () => {
+        const text = textarea.value;
+        const highlightedText = text.replace(
+            /(срочно|быстрее|побыстрее|скорее|поскорее|очень нужно)/gi,
+            match => `<b>${match}</b>`
+        );
+        previewText.innerHTML = highlightedText;
+    });
+
+    firstFieldset.appendChild(textareaLabel);
+    firstFieldset.appendChild(textarea);
+    firstFieldset.appendChild(previewText);
+
     const initialRemoveButton = document.createElement("button");
     initialRemoveButton.type = "button";
     initialRemoveButton.className = "remove-button";
@@ -193,7 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fontSize: "20px",
         cursor: "pointer"
     });
-
     initialRemoveButton.addEventListener("click", () => {
         const beverages = document.querySelectorAll(".beverage");
         if (beverages.length > 1) {
@@ -201,6 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
             updateDrinkNumbers();
         }
     });
-
     firstFieldset.appendChild(initialRemoveButton);
+
+    firstFieldset.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.name = 'milk-1';
+    });
 });
